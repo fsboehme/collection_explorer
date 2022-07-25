@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static thumbnail %}
+{% block content %}
+    <div class="w-4/5">
+        <div class="mb-10">
+            <input
+                    type="text"
+                    id="wallet_address"
+                    autofocus
+                    autocomplete="off"
+                    value="0x16ad4e68c2e1d312c01098d3e1cfc633b90dff46"
+                    placeholder="Wallet address"
+                    class="w-2/5 border-2 border-blue-500 px-4 py-1 uppercase rounded-md text-xl text-blue-800 font-semibold outline-none"
+            />
+
+            <button
+                    id="load_button"
+                    class="border-2 border-blue-500 bg-blue-700 text-white transition-colors px-4 outline-none py-1 uppercase rounded-md text-xl font-semibold"
+            >
+                Load NFTs
+            </button>
+        </div>
+
+        <div id="nfts" class="flex gap-7 flex-wrap"></div>
+    </div>
+{% endblock %}
+
+{% block end_scripts %}
+    <template id="nft_template">
+        <section>
+            <h1
+                    class="font-bold bg-yellow-500 text-white text-center rounded-t-md"
+            ></h1>
+
+            <a href="" target="_blank">
+                <img class="rounded-b-md w-40 h-40" src="" alt=""/>
+            </a>
+        </section>
+    </template>
+
+    <!--- include web3.min.js from cloudflare -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
+
+    <script type="module" src="{% static 'index.js' %}"></script>
+{% endblock %}
