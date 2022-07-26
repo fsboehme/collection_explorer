@@ -13,9 +13,6 @@ SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'localhost')
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(",")
 
-WSGI_APPLICATION = 'django_project.wsgi.prod.application'
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
