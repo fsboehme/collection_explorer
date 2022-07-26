@@ -18,8 +18,7 @@ def fetch_items(collection, force_update=False):
     # get totalSupply
     total_supply = contract_instance.functions.totalSupply().call()
     # for each token in the collection, get the token id, name, description, and image
-    # for i in range(total_supply):
-    for i in range(200):
+    for i in range(total_supply):
         try:
             item = Item.objects.get(collection=collection, token_id=i)
         except Item.DoesNotExist:
