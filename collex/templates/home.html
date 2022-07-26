@@ -120,5 +120,10 @@
         }
         if (isMacintosh()) $('#zoomer-help span').text('cmd')
 
+        // hide loader after page is full loaded
+        $(window).on('load', function () {
+            $('.loader').slideUp(1000)
+        })
+
     </script>
 {% endblock %}
