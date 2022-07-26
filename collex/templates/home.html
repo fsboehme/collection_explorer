@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'hes-gallery/hes-gallery.css' %}">
     <script src="{% static 'hes-gallery/hes-gallery.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style id="resizing"></style>
 {% endblock %}
 
 {% block content %}
@@ -68,9 +69,15 @@
 
         function resizeGrid(newWidth) {
             console.log(newWidth)
-            galleryItems.width(newWidth)
-            $nfts.css('gap', newWidth / 15 + 'px')
-            $nfts.css('font-size', Math.max(ogFontSize * .6, newWidth / ogWidth * ogFontSize) + 'px')
+            $('#resizing').html(
+                `#nfts > section {
+                    width: ${newWidth}px !important;
+                }
+                #nfts {
+                    gap: ${newWidth / 15}px !important;
+                    font-size: ${Math.max(ogFontSize * .6, newWidth / ogWidth * ogFontSize)}px !important;
+                }`
+            );
             $zoomerElement.value = pxToRem(newWidth)
         }
 
