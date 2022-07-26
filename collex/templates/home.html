@@ -16,15 +16,15 @@
         <div id="nfts" class="flex gap-5 flex-wrap hes-gallery">
 
             {% for item in collection.items.all %}
-                <section>
+                <section class="w-60">
                     <h4
-                            class="font-bold bg-moam-lavender text-white text-center rounded-t-md"
+                            class="font-bold bg-moam-lavender text-white text-center text-ellipsis rounded-t-md overflow-hidden text-ellipsis w-full"
                     >
                         {{ item.name }}
                     </h4>
 
                     <a href="#" onclick="return false">
-                        <img class="gallery-img rounded-b-md w-60"
+                        <img class="gallery-img rounded-b-md w-full"
                              src="{{ item.image|thumbnail_url:'small' }}"
                              data-fullsize="{{ item.image|thumbnail_url:'large' }}"
                              data-subtext="{{ item.name }}"
@@ -55,7 +55,7 @@
         const $nfts = $('#nfts');
         const $headings = $('#nfts').find('h4');
         const ogFontSize = parseInt($headings.css('font-size'));
-        const galleryImgs = $('.gallery-img');
+        const galleryItems = $nfts.find('section');
         const ogWidth = $('.gallery-img').width();
         const $zoomerElement = $('#zoomer')[0];
 
@@ -68,9 +68,9 @@
 
         function resizeGrid(newWidth) {
             console.log(newWidth)
-            galleryImgs.width(newWidth)
+            galleryItems.width(newWidth)
             $nfts.css('gap', newWidth / 15 + 'px')
-            $nfts.css('font-size', Math.max(ogFontSize * .7, newWidth / ogWidth * ogFontSize) + 'px')
+            $nfts.css('font-size', Math.max(ogFontSize * .6, newWidth / ogWidth * ogFontSize) + 'px')
             $zoomerElement.value = pxToRem(newWidth)
         }
 
@@ -83,7 +83,7 @@
             if (e.metaKey || e.ctrlKey) {
                 // resize all .gallery-imgs by e.deltaY
                 const delta = e.deltaY;
-                let width = galleryImgs.width()
+                let width = galleryItems.width()
                 let newWidth = Math.min(Math.max(width - delta, minPx), maxPx);
                 resizeGrid(newWidth);
             }
