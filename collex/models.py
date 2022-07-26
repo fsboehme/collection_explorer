@@ -1,6 +1,9 @@
 import mimetypes
+import time
+from http.client import IncompleteRead
 from tempfile import NamedTemporaryFile
 from urllib import request
+from urllib.error import URLError
 
 from django.core.files import File
 from django.db import models
@@ -47,12 +50,40 @@ class Item(models.Model):
 
     def get_remote_image(self, force_update=False):
         if self.image_url and (not self.image or force_update):
+            print('Fetching image for', self.collection, self.token_id, self.name)
             img_temp = NamedTemporaryFile(delete=True)
-            urlopen = request.urlopen(convert_to_https(self.image_url))
-            content_type = urlopen.headers['content-type']
+            url = convert_to_https(self.image_url)
+            response, content = self.safe_request(url)
+            content_type = response.headers['content-type']
             extension = mimetypes.guess_extension(content_type)
-            img_temp.write(urlopen.read())
+            img_temp.write(content)
             img_temp.flush()
             self.image.save(f"{self.collection.slug}/{self.token_id}{extension}", File(img_temp))
             generate_all_aliases(self.image, include_global=True)
-        self.save()
+            self.save()
+
+    def safe_request(self, url):
+        try:
+            response = request.urlopen(url)
+        except URLError as e:
+            if hasattr(e, 'reason'):
+                print('We failed to reach a server.')
+                print('Reason: ', e.reason)
+            elif hasattr(e, 'code'):
+                print('The server couldn\'t fulfill the request.')
+                print('Error code: ', e.code)
+            print('Retrying in 5 seconds...')
+            time.sleep(5)
+            return self.safe_request(url)
+        if not response.getcode() == 200:
+            print('Error:', response.getcode())
+            print('Retrying in 5 seconds...')
+            time.sleep(5)
+            return self.safe_request(url)
+        try:
+            content = response.read()
+        except (IncompleteRead) as e:
+            print('Incomplete read:', e)
+            print('Retrying...')
+            return self.safe_request(url)
+        return response, content

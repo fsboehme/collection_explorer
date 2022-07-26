@@ -45,13 +45,19 @@ module.exports = {
         extend: {
             colors: {
                 'moam-canvas': '#F4EEE0',
+                'moam-brown': '#9C775E',
                 'moam-cream': '#F9E4D1',
                 'moam-dark-cream': '#F8CE9A',
                 'moam-lavender': '#EFCEE1',
+                'moam-pink': '#EC9CB7',
                 'moam-hot-pink': '#CD2D57',
                 'moam-black': '#2D2D33',
+            },
+            fontFamily: {
+                'tangerine': ['Tangerine', 'serif'],
+                'delafield': ['"Mrs Saint Delafield"', 'serif'],
             }
-        },
+        }
     },
     plugins: [
         /**

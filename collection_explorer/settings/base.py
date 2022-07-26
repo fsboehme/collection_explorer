@@ -143,10 +143,10 @@ THUMBNAIL_ALIASES = {
         #     'crop': False,
         #     'HIGH_RESOLUTION': True
         # },
-        # 'large': {
-        #     'size': (2400, 2400),
-        #     'crop': False,
-        #     'HIGH_RESOLUTION': True
-        # },
+        'large': {
+            'size': (2400, 2400),
+            'crop': False,
+            'HIGH_RESOLUTION': True
+        },
     },
 }

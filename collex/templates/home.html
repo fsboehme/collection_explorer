@@ -2,26 +2,32 @@
 {% load static thumbnail %}
 
 {% block head %}
+    <link rel="stylesheet" href="{% static 'hes-gallery/hes-gallery.css' %}">
+    <script src="{% static 'hes-gallery/hes-gallery.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 {% endblock %}
 
 {% block content %}
     <div class="w-5/6">
         <div class="mb-16 mt-24">
-            <h1 class="text-3xl font-bold mb-2 text-moam-black">{{ collection.name }}</h1>
+            <h1 class="text-6xl font-delafield font-bold mb-2 text-moam-brown">{{ collection.name }}</h1>
         </div>
 
-        <div id="nfts" class="flex gap-7 flex-wrap">
+        <div id="nfts" class="flex gap-5 flex-wrap hes-gallery">
 
             {% for item in collection.items.all %}
                 <section>
-                    <h1
+                    <h4
                             class="font-bold bg-moam-lavender text-white text-center rounded-t-md"
                     >
                         {{ item.name }}
-                    </h1>
+                    </h4>
 
-                    <a href="" target="_blank">
-                        <img class="rounded-b-md w-60" src="{{ item.image|thumbnail_url:'small' }}"
+                    <a href="#" onclick="return false">
+                        <img class="gallery-img rounded-b-md w-60"
+                             src="{{ item.image|thumbnail_url:'small' }}"
+                             data-fullsize="{{ item.image|thumbnail_url:'large' }}"
+                             data-subtext="{{ item.name }}"
                              alt="{{ item.name }}"/>
                     </a>
                 </section>
@@ -31,13 +37,67 @@
     </div>
 {% endblock %}
 
-{#{% block end_scripts %}#}
-{#    <template id="nft_template">#}
-{##}
-{#    </template>#}
+{% block end_scripts %}
+    <input id="zoomer" class="fixed right-2 bottom-2" type="range" step=".1"
+           oninput="zoomerResize()">
+    <script>
+        HesGallery.setOptions({
+            disableScrolling: false,
+            hostedStyles: false,
+            animations: true,
 
-<!--- include web3.min.js from cloudflare -->
-{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>#}
+            showImageCount: false,
+            wrapAround: true,
+        })
 
-{#    <script type="module" src="{% static 'index.js' %}"></script>#}
-{#{% endblock %}#}
+        const $nfts = $('#nfts');
+        const $headings = $('#nfts').find('h4');
+        const ogFontSize = parseInt($headings.css('font-size'));
+        const galleryImgs = $('.gallery-img');
+        const ogWidth = $('.gallery-img').width();
+        const $zoomerElement = $('#zoomer')[0];
+
+        // set maximum zoom level for images (px width)
+        const maxPx = 400;
+        const minPx = 75;
+        $zoomerElement.max = pxToRem(maxPx);
+        $zoomerElement.min = pxToRem(minPx);
+        $zoomerElement.value = pxToRem(ogWidth);
+
+        function resizeGrid(newWidth) {
+            console.log(newWidth)
+            galleryImgs.width(newWidth)
+            $nfts.css('gap', newWidth / 15 + 'px')
+            $nfts.css('font-size', Math.max(ogFontSize * .7, newWidth / ogWidth * ogFontSize) + 'px')
+            $zoomerElement.value = pxToRem(newWidth)
+        }
+
+        function zoomerResize() {
+            const newWidth = remToPx($zoomerElement.value)
+            resizeGrid(newWidth)
+        }
+
+        window.addEventListener('wheel', function (e) {
+            if (e.metaKey || e.ctrlKey) {
+                // resize all .gallery-imgs by e.deltaY
+                const delta = e.deltaY;
+                let width = galleryImgs.width()
+                let newWidth = Math.min(Math.max(width - delta, minPx), maxPx);
+                resizeGrid(newWidth);
+            }
+        })
+
+        function base() {
+            return parseFloat(getComputedStyle(document.documentElement).fontSize);
+        }
+
+        function remToPx(rem) {
+            return rem * base();
+        }
+
+        function pxToRem(px) {
+            return (1 / base() * px).toFixed(1);
+        }
+
+    </script>
+{% endblock %}

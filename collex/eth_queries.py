@@ -1,3 +1,4 @@
+import time
 import urllib
 
 import requests
@@ -6,7 +7,7 @@ from web3.auto.infura import w3
 from django.apps import apps
 
 
-def fetch_items(collection):
+def fetch_items(collection, force_update=False):
     Item = apps.get_model('collex', 'Item')
     if isinstance(collection, int):
         Collection = apps.get_model('collex', 'Collection')
@@ -18,39 +19,48 @@ def fetch_items(collection):
     total_supply = contract_instance.functions.totalSupply().call()
     # for each token in the collection, get the token id, name, description, and image
     # for i in range(total_supply):
-    for i in range(16, 21):
-        # get torkenURI
-        token_uri = contract_instance.functions.tokenURI(i).call()
-        # if tokenURI is ipfs:// convert to https://ipfs.io/ipfs/
-        token_uri = convert_to_https(token_uri)
-        # query tokenURI to get metadata
-        response = requests.get(token_uri)
-        while response.status_code != 200:
+    for i in range(200):
+        try:
+            item = Item.objects.get(collection=collection, token_id=i)
+        except Item.DoesNotExist:
+            item = None
+        if not item or item.metadata is None or force_update:
+            print('Fetching metadata for', collection, i)
+            # get tokenURI
+            token_uri = contract_instance.functions.tokenURI(i).call()
+            # if tokenURI is ipfs:// convert to https://ipfs.io/ipfs/
+            token_uri = convert_to_https(token_uri)
+            # query tokenURI to get metadata
             response = requests.get(token_uri)
-        metadata = response.json()
-        # get token name, description, and image_url from metadata
-        name = metadata['name']
-        description = metadata['description']
-        image_url = convert_to_https(metadata['image'])
-        # create Item object
-        item, created = Item.objects.get_or_create(
-            collection=collection,
-            token_id=i,
-            defaults=dict(
-                name=name,
-                description=description,
-                image_url=image_url,
-                tokenUri=token_uri,
-                metadata=metadata
+            while response.status_code != 200:
+                print('Failed to get metadata for', collection, token_uri)
+                print('Retrying in 5 seconds...')
+                time.sleep(5)
+                response = requests.get(token_uri)
+            metadata = response.json()
+            # get token name, description, and image_url from metadata
+            name = metadata['name']
+            description = metadata['description']
+            image_url = convert_to_https(metadata['image'])
+            # create Item object
+            item, created = Item.objects.get_or_create(
+                collection=collection,
+                token_id=i,
+                defaults=dict(
+                    name=name,
+                    description=description,
+                    image_url=image_url,
+                    tokenUri=token_uri,
+                    metadata=metadata
+                )
             )
-        )
-        if not created:
-            item.name = name
-            item.description = description
-            item.image_url = image_url
-            item.tokenUri = token_uri
-            item.metadata = metadata
-            item.save()
+            if not created:
+                item.name = name
+                item.description = description
+                item.image_url = image_url
+                item.tokenUri = token_uri
+                item.metadata = metadata
+                item.save()
         item.get_remote_image()
 
 
