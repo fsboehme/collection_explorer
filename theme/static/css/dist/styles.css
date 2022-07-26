@@ -783,6 +783,10 @@ select {
   visibility: visible;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
 .static {
   position: static;
 }
@@ -831,6 +835,10 @@ select {
 
 .mb-10 {
   margin-bottom: 2.5rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
 }
 
 .block {
@@ -891,6 +899,10 @@ select {
 
 .w-40 {
   width: 10rem;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .border-collapse {
@@ -977,6 +989,11 @@ select {
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
 }
 
+.object-fill {
+  -o-object-fit: fill;
+     object-fit: fill;
+}
+
 .p-10 {
   padding: 2.5rem;
 }
@@ -1018,6 +1035,11 @@ select {
   line-height: 1;
 }
 
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -1051,6 +1073,26 @@ select {
 .text-blue-800 {
   --tw-text-opacity: 1;
   color: rgb(30 64 175 / var(--tw-text-opacity));
+}
+
+.text-orange-300 {
+  --tw-text-opacity: 1;
+  color: rgb(253 186 116 / var(--tw-text-opacity));
+}
+
+.text-amber-600 {
+  --tw-text-opacity: 1;
+  color: rgb(217 119 6 / var(--tw-text-opacity));
+}
+
+.text-amber-300 {
+  --tw-text-opacity: 1;
+  color: rgb(252 211 77 / var(--tw-text-opacity));
+}
+
+.text-amber-500 {
+  --tw-text-opacity: 1;
+  color: rgb(245 158 11 / var(--tw-text-opacity));
 }
 
 .outline-none {

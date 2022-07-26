@@ -38,8 +38,10 @@
 {% endblock %}
 
 {% block end_scripts %}
-    <input id="zoomer" class="fixed right-2 bottom-2" type="range" step=".1"
-           oninput="zoomerResize()">
+    <div class="fixed right-2 bottom-2 ">
+        <div id="zoomer-help" class="text-xs text-moam-brown mb-1 invisible"><span>ctrl</span> + mousewheel works too</div>
+        <input id="zoomer" class="w-full" type="range" step=".1">
+    </div>
     <script>
         HesGallery.setOptions({
             disableScrolling: false,
@@ -59,7 +61,7 @@
 
         // set maximum zoom level for images (px width)
         const maxPx = 400;
-        const minPx = 75;
+        const minPx = 60;
         $zoomerElement.max = pxToRem(maxPx);
         $zoomerElement.min = pxToRem(minPx);
         $zoomerElement.value = pxToRem(ogWidth);
@@ -98,6 +100,18 @@
         function pxToRem(px) {
             return (1 / base() * px).toFixed(1);
         }
+
+        $('#zoomer').on('mousedown', function () {
+            $('#zoomer-help').removeClass('invisible')
+        }).on('mouseup', function () {
+            $('#zoomer-help').addClass('invisible')
+        }).on('input', zoomerResize)
+
+        function isMacintosh() {
+            console.log(navigator.userAgent)
+          return navigator.userAgent.indexOf('Mac') > -1
+        }
+        if (isMacintosh()) $('#zoomer-help span').text('cmd')
 
     </script>
 {% endblock %}
