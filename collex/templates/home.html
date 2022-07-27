@@ -6,6 +6,10 @@
     <script src="{% static 'hes-gallery/hes-gallery.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style id="resizing"></style>
+    <style>#nfts section {
+            transition: width .15s, height .15s;
+    }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -41,7 +45,7 @@
 {% block end_scripts %}
     <div class="fixed right-2 bottom-2 ">
         <div id="zoomer-help" class="text-xs text-moam-brown mb-1 invisible"><span>ctrl</span> + mousewheel works too</div>
-        <input id="zoomer" class="w-full" type="range" step="1">
+        <input id="zoomer" class="w-full" type="range" step="0.5">
     </div>
     <script>
         HesGallery.setOptions({
