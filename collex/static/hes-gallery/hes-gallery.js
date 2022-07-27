@@ -135,7 +135,13 @@ var HesGallery = {
 
     document.getElementById('hg-subtext').innerHTML = this.galleries[g].subTexts[i];
 
-    if (this.galleries[this.currentGal].options.showImageCount && this.galleries[this.currentGal].imgPaths.length != 1) document.getElementById('hg-howmany').innerHTML = this.currentImg + 1 + '/' + this.galleries[g].count;else document.getElementById('hg-howmany').innerHTML = '';
+    debugger
+    if (this.galleries[this.currentGal].options.showOsLink)
+      document.getElementById('hg-howmany').innerHTML = `<a href="https://opensea.io/assets/${this.galleries[this.currentGal].contractAddress}/${this.galleries[g].tokenIds[i]}" target="_blank">View on OpenSea</a>`;
+    else if (this.galleries[this.currentGal].options.showImageCount && this.galleries[this.currentGal].imgPaths.length != 1)
+      document.getElementById('hg-howmany').innerHTML = this.currentImg + 1 + '/' + this.galleries[g].count;
+    else document.getElementById('hg-howmany').innerHTML = '';
+
 
     // Visibility of next/before buttons in gallery
     if (this.galleries[this.currentGal].imgPaths.length == 1) {
@@ -193,16 +199,19 @@ var HesGallery = {
     this.index = index;
     this.imgPaths = [];
     this.subTexts = [];
+    this.tokenIds = [];
     this.altTexts = [];
 
     this.options = {};
 
     var gallery = document.getElementsByClassName('hes-gallery')[this.index];
+    this.contractAddress = gallery.dataset.contract_address;
 
     if (this.root.options.linkNested) this.root.replaceImages(gallery);
 
     this.options.wrapAround = gallery.hasAttribute('data-wrap') ? gallery.dataset.wrap == 'true' : this.root.options.wrapAround;
     this.options.showImageCount = gallery.hasAttribute('data-img-count') ? gallery.dataset.imgCount == 'true' : this.root.options.showImageCount;
+    this.options.showOsLink = gallery.hasAttribute('data-os-link') ? gallery.dataset.os_link == 'true' : this.root.options.showOsLink;
 
     var disabledCount = 0;
     gallery.querySelectorAll('img').forEach(function (image, i) {
@@ -210,6 +219,7 @@ var HesGallery = {
         var imagePath = image.dataset.fullsize || image.dataset.src || image.src;
         if (imagePath) _this3.imgPaths.push(imagePath);
         _this3.subTexts.push(image.dataset.subtext || '');
+        _this3.tokenIds.push(image.dataset.token_id || '');
         _this3.altTexts.push(image.alt || '');
 
         image.onclick = function () {

@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static thumbnail %}
 
+{% block title_tag %}<title>Memories Of A Masterpiece by Amber Vittoria</title>{% endblock %}
+
 {% block head %}
     <link rel="stylesheet" href="{% static 'hes-gallery/hes-gallery.css' %}">
     <script src="{% static 'hes-gallery/hes-gallery.js' %}"></script>
@@ -18,7 +20,7 @@
             <h1 class="text-6xl font-delafield font-bold mb-2 text-moam-brown">{{ collection.name }}</h1>
         </div>
 
-        <div id="nfts" class="flex gap-5 flex-wrap hes-gallery">
+        <div id="nfts" class="flex gap-5 flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
 
             {% for item in collection.items.all %}
                 <section class="w-60">
@@ -33,6 +35,7 @@
                              src="{{ item.image|thumbnail_url:'small' }}"
                              data-fullsize="{{ item.image|thumbnail_url:'large' }}"
                              data-subtext="{{ item.name }}"
+                             data-token_id="{{ item.token_id }}"
                              alt="{{ item.name }}"/>
                     </a>
                 </section>
@@ -53,6 +56,7 @@
             hostedStyles: false,
             animations: true,
 
+            showOsLink: true,
             showImageCount: false,
             wrapAround: true,
         })
