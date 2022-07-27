@@ -135,7 +135,6 @@ var HesGallery = {
 
     document.getElementById('hg-subtext').innerHTML = this.galleries[g].subTexts[i];
 
-    debugger
     if (this.galleries[this.currentGal].options.showOsLink)
       document.getElementById('hg-howmany').innerHTML = `<a href="https://opensea.io/assets/${this.galleries[this.currentGal].contractAddress}/${this.galleries[g].tokenIds[i]}" target="_blank">View on OpenSea</a>`;
     else if (this.galleries[this.currentGal].options.showImageCount && this.galleries[this.currentGal].imgPaths.length != 1)
@@ -181,6 +180,8 @@ var HesGallery = {
     this.elements.gallery.classList.remove('open');
     this.open = false;
     if (this.options.disableScrolling) document.body.classList.remove('hg-disable-scrolling'); // Enable scroll
+
+    removeHash();
   },
   next: function next() {
     if (this.galleries[this.currentGal].options.wrapAround && this.currentImg == this.galleries[this.currentGal].count - 1) this.show(this.currentGal, 0);else if (this.currentImg + 1 < this.galleries[this.currentGal].count) this.show(this.currentGal, this.currentImg + 1);
@@ -241,4 +242,21 @@ if ('object' == (typeof exports === 'undefined' ? 'undefined' : _typeof(exports)
 // NodeList polyfill
 if (typeof NodeList !== 'undefined' && NodeList.prototype && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
+function removeHash () {
+    var scrollV, scrollH, loc = window.location;
+    if ("pushState" in history)
+        history.pushState("", document.title, loc.pathname + loc.search);
+    else {
+        // Prevent scrolling by storing the page's current scroll offset
+        scrollV = document.body.scrollTop;
+        scrollH = document.body.scrollLeft;
+
+        loc.hash = "";
+
+        // Restore the scroll offset, should be flicker free
+        document.body.scrollTop = scrollV;
+        document.body.scrollLeft = scrollH;
+    }
 }

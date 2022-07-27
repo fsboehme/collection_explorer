@@ -9,7 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style id="resizing"></style>
     <style>#nfts section {
-            transition: width .15s, height .15s;
+        transition: width .15s, height .15s;
     }
     </style>
 {% endblock %}
@@ -23,14 +23,14 @@
         <div id="nfts" class="flex gap-5 flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
 
             {% for item in collection.items.all %}
-                <section class="w-60">
+                <section id="{{ item.token_id }}" class="w-60">
                     <h4
                             class="font-bold bg-moam-lavender text-white text-center text-ellipsis rounded-t-md overflow-hidden text-ellipsis w-full"
                     >
                         {{ item.name }}
                     </h4>
 
-                    <a href="#" onclick="return false">
+                    <a href="#{{ item.token_id }}" class="gallery-link">
                         <img class="gallery-img rounded-b-md w-full"
                              src="{{ item.image|thumbnail_url:'small' }}"
                              data-fullsize="{{ item.image|thumbnail_url:'large' }}"
@@ -47,7 +47,8 @@
 
 {% block end_scripts %}
     <div class="fixed right-2 bottom-2 ">
-        <div id="zoomer-help" class="text-xs text-moam-brown mb-1 invisible"><span>ctrl</span> + mousewheel works too</div>
+        <div id="zoomer-help" class="text-xs text-moam-brown mb-1 invisible"><span>ctrl</span> + mousewheel works too
+        </div>
         <input id="zoomer" class="w-full" type="range" step="0.5">
     </div>
     <script>
@@ -124,14 +125,38 @@
 
         function isMacintosh() {
             console.log(navigator.userAgent)
-          return navigator.userAgent.indexOf('Mac') > -1
+            return navigator.userAgent.indexOf('Mac') > -1
         }
+
         if (isMacintosh()) $('#zoomer-help span').text('cmd')
 
         // hide loader after page is full loaded
         $(window).on('load', function () {
             $('.loader').slideUp(1000)
+
+            locationHashChanged()
+
         })
+
+        /**
+         * Gallery link click handler
+         */
+        $nfts.find('.gallery-link').on('click', (e) => {
+            e.stopPropagation();
+            history.pushState(true, '', `${e.currentTarget.href}`);
+            return false;
+        })
+        /**
+         * Show image when hash is changed
+         */
+        function locationHashChanged() {
+            var hash = window.location.hash;
+            if (hash) {
+                $(hash).find('img').click();
+            }
+            return false;
+        }
+        window.onhashchange = locationHashChanged;
 
     </script>
 {% endblock %}
