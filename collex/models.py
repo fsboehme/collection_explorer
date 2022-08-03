@@ -5,11 +5,16 @@ from tempfile import NamedTemporaryFile
 from urllib import request
 from urllib.error import URLError
 
+import extcolors
+from PIL import ImageColor
+from django.conf import settings
 from django.core.files import File
 from django.db import models
 from easy_thumbnails.files import generate_all_aliases
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 from slugify import slugify
 
+from collex.colors import ColorAnalyzer
 from collex.eth_queries import fetch_items, convert_to_https
 
 
@@ -20,6 +25,8 @@ class Collection(models.Model):
     abi = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    colors = models.ManyToManyField('Color', blank=True)
 
     class Meta:
         ordering = ['name']
@@ -33,6 +40,15 @@ class Collection(models.Model):
 
     def update_items(self):
         fetch_items(self)
+
+    def update_color_palettes(self):
+        for item in self.items.all():
+            item.update_color_palette()
+
+    def add_color(self, hex):
+        color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        self.colors.add(color)
+        self.save()
 
 
 class Item(models.Model):
@@ -48,11 +64,25 @@ class Item(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    colors = models.ManyToManyField('Color', through='ItemColor', blank=True)
+
     class Meta:
         ordering = ['collection', 'token_id']
 
     def __str__(self):
         return f"{self.token_id} - {self.name}"
+
+    def next(self):
+        try:
+            return self.collection.items.get(token_id=self.token_id + 1)
+        except Item.DoesNotExist:
+            return None
+
+    def previous(self):
+        try:
+            return self.collection.items.get(token_id=self.token_id - 1)
+        except Item.DoesNotExist:
+            return None
 
     def get_remote_image(self, force_update=False):
         if self.image_url and (not self.image or force_update):
@@ -93,3 +123,97 @@ class Item(models.Model):
             print('Retrying...')
             return self.safe_request(url)
         return response, content
+
+    def update_color_palette(self, color=None, tolerance=None, limit=None):
+        """
+        Update the color palette for this item.
+        :param color: optionally pass a Color instance to add just that color to the palette
+        """
+        img = self.thumbnail_path()
+        ca = ColorAnalyzer(img, tolerance=tolerance or 4, limit=limit or 20)
+        palette_colors = []
+        collection_colors = self.collection.colors.all()
+        colors = [color] if color else collection_colors
+        for c in colors:
+            amount = ca.find_in_image(c.rgb)
+            if amount:
+                item_color, created = ItemColor.objects.get_or_create(item=self, color=c)
+                item_color.amount = amount
+                item_color.save()
+                palette_colors.append(c.pk)
+        # remove colors not in the collection palette
+        self.itemcolor_set.filter(manually_added=False).exclude(color__in=collection_colors).delete()
+        # remove any colors not found, unless they were manually added (useful if tolerance has changed)
+        if not color:
+            self.itemcolor_set.filter(manually_added=False).exclude(color__in=palette_colors).delete()
+
+    def thumbnail_path(self):
+        url = thumbnail_url(self.image, 'small')
+        img = str(settings.BASE_DIR / url[1:])
+        return img
+
+    def extract_colors(self, tolerance=None, limit=None, save=False):
+        img = self.thumbnail_path()
+        ca = ColorAnalyzer(img, tolerance=tolerance, limit=limit)
+        palette_colors = []
+        for rgb, amount in ca.extract_colors():
+            hex = Color.rgb_to_hex(*rgb)
+            rgb_str = f"{rgb[0]},{rgb[1]},{rgb[2]}"
+            palette_colors.append(hex)
+            if save:
+                color, created = Color.objects.get_or_create(rgb=rgb_str)
+                ItemColor.objects.get_or_create(item=self, color=color)
+        return palette_colors
+
+    def add_color(self, hex):
+        color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        item_color, created = ItemColor.objects.get_or_create(item=self, color=color, defaults={'manually_added': True})
+        if created:
+            # find color in image and update amount
+            self.update_color_palette(color=color, tolerance=10)
+
+    def remove_color(self, hex):
+        color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        self.itemcolor_set.filter(color=color).update(manually_removed=True)
+
+    def unremove_color(self, hex):
+        color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        self.itemcolor_set.filter(color=color).update(manually_removed=False)
+
+
+class Color(models.Model):
+    _rgb = models.CharField(max_length=15, blank=True, null=True)
+    _hex = models.CharField(max_length=7, blank=True, null=True)
+
+    class Meta:
+        ordering = ['_hex']
+
+    def __str__(self):
+        return f"{self._hex}"
+
+    def save(self, *args, **kwargs):
+        if self._hex and not self._rgb:
+            self._rgb = str(ImageColor.getrgb(self._hex))[1:-1]
+        self._rgb = self._rgb.replace(' ', '')
+        if self._rgb and not self._hex:
+            self._hex = self.rgb_to_hex(*self.rgb)
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def rgb_to_hex(r, g, b):
+        return '#{:X}{:X}{:X}'.format(r, g, b)
+
+    @property
+    def rgb(self):
+        return tuple(int(x) for x in self._rgb.split(','))
+
+
+class ItemColor(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    amount = models.IntegerField(blank=True, null=True)
+    manually_removed = models.BooleanField(default=False)
+    manually_added = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['manually_removed', '-amount']
