@@ -154,6 +154,7 @@ class Item(models.Model):
         # remove any colors not found, unless they were manually added (useful if tolerance has changed)
         if not color:
             self.itemcolor_set.filter(manually_added=False).exclude(color__in=palette_colors).delete()
+        self.save()  # save the colors_string
 
     def thumbnail_path(self, size='small'):
         url = thumbnail_url(self.image, size)
