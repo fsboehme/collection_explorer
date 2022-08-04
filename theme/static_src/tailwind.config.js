@@ -54,7 +54,6 @@ module.exports = {
                 'moam-black': '#2D2D33',
             },
             fontFamily: {
-                'tangerine': ['Tangerine', 'serif'],
                 'delafield': ['"Mrs Saint Delafield"', 'serif'],
             },
             dropShadow: {

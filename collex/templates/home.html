@@ -47,7 +47,7 @@
             </div>
         {% endif %}
 
-        {% if collection.color_filters or user.is_admin %}
+        {% if collection.color_filters or user.is_staff %}
             <div class="text-sm font-medium"><span id="item-count"></span> items</div>
         {% endif %}
         <div id="nfts" class="clear-right flex flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
