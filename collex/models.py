@@ -137,7 +137,7 @@ class Item(models.Model):
         Update the color palette for this item.
         :param color: optionally pass a Color instance to add just that color to the palette
         """
-        img = self.thumbnail_path()
+        img = self.thumbnail_path('xs')
         ca = ColorAnalyzer(img, tolerance=tolerance or 4, limit=limit or 20)
         palette_colors = []
         collection_colors = self.collection.colors.all()
@@ -155,13 +155,13 @@ class Item(models.Model):
         if not color:
             self.itemcolor_set.filter(manually_added=False).exclude(color__in=palette_colors).delete()
 
-    def thumbnail_path(self):
-        url = thumbnail_url(self.image, 'small')
+    def thumbnail_path(self, size='small'):
+        url = thumbnail_url(self.image, size)
         img = str(settings.BASE_DIR / url[1:])
         return img
 
     def extract_colors(self, tolerance=None, limit=None, save=False):
-        img = self.thumbnail_path()
+        img = self.thumbnail_path('xs')
         ca = ColorAnalyzer(img, tolerance=tolerance, limit=limit)
         palette_colors = []
         for rgb, amount in ca.extract_colors():
