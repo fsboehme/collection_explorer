@@ -7,23 +7,54 @@
     <link rel="stylesheet" href="{% static 'hes-gallery/hes-gallery.css' %}">
     <script src="{% static 'hes-gallery/hes-gallery.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
     <style id="resizing"></style>
-    <style>#nfts section {
-        transition: width .15s, height .15s;
-    }
+    <style>
+        /* transition for items on translate */
+        .filter-button {
+            transition: transform .1s;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div class="w-5/6">
-        <div class="mb-16 mt-24">
-            <h1 class="text-6xl font-delafield font-bold mb-2 text-moam-brown">{{ collection.name }}</h1>
+        <div class="mb-8 mt-24">
+            <h1 class="text-6xl font-delafield font-bold mb-2 ">{{ collection.name }}</h1>
         </div>
 
-        <div id="nfts" class="flex gap-5 flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
+        <div id="filters" class="py-4 mb-8">
+            {# buttons for each collection color #}
+            <label class=" font-medium text-sm">Filter Colors (click again or ctrl + click to exclude)</label>
+            <div class="my-1">
+                {% for color in collection.colors.all %}
+                    <button class="filter-button py-4 px-4 my-2 rounded-full transition-transform"
+                            data-filter="{{ color.hex }}"
+                            style="background:{{ color.hex }};"
+                    >
+                    </button>
+                {% endfor %}
+            </div>
+
+            <div class="mt-2 font-medium text-sm">
+                <label for="n-color-filter" class="">Color Count</label>
+                <span id="n-color-filter-value" class="mx-2 "></span>
+                <br>
+                <input id="n-color-filter" class="w-full md:w-2/5 mt-2" type="range" min="0" max="20" step="1" value="0">
+            </div>
+
+        </div>
+
+        <div class="text-sm font-medium"><span id="item-count"></span> items</div>
+        <div id="nfts" class="clear-right flex flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
 
             {% for item in collection.items.all %}
-                <section id="{{ item.token_id }}" class="w-60">
+                <section id="{{ item.token_id }}"
+                         class="w-60 gallery-item"
+                         data-colors="[{{ item.colors_string }}]"
+                         data-n-colors="{{ item.colors_n }}"
+                >
                     <h4
                             class="font-bold bg-moam-lavender text-white text-center text-ellipsis rounded-t-md overflow-hidden text-ellipsis w-full"
                     >
@@ -47,7 +78,7 @@
 
 {% block end_scripts %}
     <div class="fixed right-2 bottom-2 ">
-        <div id="zoomer-help" class="text-xs text-moam-brown mb-1 invisible"><span>ctrl</span> + mousewheel works too
+        <div id="zoomer-help" class="text-xs  mb-1 invisible"><span>ctrl</span> + mousewheel works too
         </div>
         <input id="zoomer" class="w-full" type="range" step="0.5">
     </div>
@@ -63,7 +94,7 @@
         })
 
         const $nfts = $('#nfts');
-        const $headings = $('#nfts').find('h4');
+        const $headings = $nfts.find('h4');
         const ogFontSize = parseInt($headings.css('font-size'));
         const galleryItems = $nfts.find('section');
         const ogWidth = $('.gallery-img').width();
@@ -81,14 +112,18 @@
             $('#resizing').html(
                 `#nfts > section {
                     width: ${newWidth}px !important;
+                    margin: ${newWidth / 15}px;
                 }
                 #nfts {
-                    gap: ${newWidth / 15}px !important;
+                    margin: 0 -${newWidth / 15 / 2}px !important;
                     font-size: ${Math.max(ogFontSize * .6, newWidth / ogWidth * ogFontSize)}px !important;
                 }`
             );
             $zoomerElement.value = pxToRem(newWidth)
+            setTimeout(() => $nfts.isotope('layout'), 0);
         }
+
+        resizeGrid(ogWidth);
 
         function zoomerResize() {
             const newWidth = remToPx($zoomerElement.value)
@@ -138,6 +173,77 @@
 
         })
 
+        $nfts.imagesLoaded(function () {
+            $nfts.isotope({
+                // options
+                itemSelector: '.gallery-item',
+                layoutMode: 'fitRows',
+            });
+            applyFilters()
+        });
+
+        const $colorFilterButtons = $('#filters').find('button');
+        let $nColorsFilter = $('#n-color-filter');
+
+        $colorFilterButtons.click(function (event) {
+            // inactive > included (active) > excluded (active)
+            let excludeClasses = ['exclude', 'translate-y-2', 'drop-shadow-button-above'];
+            let includeClasses = ['include', '-translate-y-2', 'drop-shadow-button'];
+            if ($(this).hasClass('include') || event.metaKey || event.ctrlKey) {
+                $(this).addClass(excludeClasses)
+                $(this).removeClass(includeClasses)
+            } else if ($(this).hasClass('exclude')) {
+                $(this).removeClass(excludeClasses)
+            } else {
+                $(this).addClass(includeClasses)
+            }
+
+            applyFilters()
+        });
+
+
+        $nColorsFilter.on('input', function () {
+            $('#n-color-filter-value').text(this.value > 0 ? this.value : '')
+            applyFilters()
+        })
+
+        function applyFilters() {
+            var includeColors = [],
+                excludeColors = [];
+            $colorFilterButtons.each(function (i, elem) {
+                // use value if active
+                if (elem.classList.contains('include'))
+                    includeColors.push(elem.dataset.filter);
+                else if (elem.classList.contains('exclude'))
+                    excludeColors.push(elem.dataset.filter);
+            });
+            $nfts.isotope({
+                filter: function () {
+                    if (parseInt($nColorsFilter.val()) !== 0 && $(this).data('n-colors') !== parseInt($nColorsFilter.val()))
+                        return false;
+
+                    // for each of the item's colors, check if it is in the includeColors or excludeColors array
+                    var itemColors = $(this).data('colors').split(',');
+
+                    // check if all filterColors are in the item's colors
+                    for (var i = 0; i < includeColors.length; i++) {
+                        if ($(this).data('colors').indexOf(includeColors[i]) === -1) {
+                            return false;
+                        }
+                    }
+                    // check if all excludeColors are not in the item's colors
+                    for (var i = 0; i < excludeColors.length; i++) {
+                        if ($(this).data('colors').indexOf(excludeColors[i]) !== -1) {
+                            return false;
+                        }
+                    }
+                    return true;
+
+                }
+            })
+            $('#item-count').text($nfts.isotope('getFilteredItemElements').length)
+        }
+
         /**
          * Gallery link click handler
          */
@@ -146,6 +252,7 @@
             history.pushState(true, '', `${e.currentTarget.href}`);
             return false;
         })
+
         /**
          * Show image when hash is changed
          */
@@ -156,6 +263,7 @@
             }
             return false;
         }
+
         window.onhashchange = locationHashChanged;
 
     </script>

@@ -91,9 +91,26 @@ var HesGallery = {
 
     this.elements.gallery = gallery; // Whole gallery
 
-    this.elements.gallery.innerHTML += '\n      <div id=\'hg-bg\'></div>\n      <div id=\'hg-pic-cont\'>\n        <img id=\'hg-pic\' />\n        <div id=\'hg-prev-onpic\'></div>\n        <div id=\'hg-next-onpic\'></div>\n        <div id=\'hg-subtext\'></div>\n        <div id=\'hg-howmany\'></div>\n      </div>\n      <button id=\'hg-prev\' title="Previous" aria-label="Next">\n        <img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgICA8cGF0aCBkPSJNOC41OSAxNi4zNGw0LjU4LTQuNTktNC41OC00LjU5TDEwIDUuNzVsNiA2LTYgNnoiLz4NCiAgICA8cGF0aCBkPSJNMC0uMjVoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4NCjwvc3ZnPg==" alt="Previous" />\n      </button>\n      <button id=\'hg-next\' title="Next" aria-label="Previous">\n        <img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgICA8cGF0aCBkPSJNOC41OSAxNi4zNGw0LjU4LTQuNTktNC41OC00LjU5TDEwIDUuNzVsNiA2LTYgNnoiLz4NCiAgICA8cGF0aCBkPSJNMC0uMjVoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4NCjwvc3ZnPg==" alt="Next" />\n      </button>\n    ';
+    this.elements.gallery.innerHTML += '\n      ' +
+        '<div id=\'hg-bg\'></div>\n      ' +
+        '<div id=\'hg-pic-cont\'>\n        ' +
+            '<img id=\'hg-pic\' />\n        ' +
+            '<div id=\'hg-prev-onpic\'></div>\n        ' +
+            '<div id=\'hg-next-onpic\'></div>\n        ' +
+            '<div id=\'hg-subtext\'></div>\n        ' +
+            '<div id=\'hg-howmany\'></div>\n      ' +
+        '</div>\n      ' +
+        '<div id=\'hg-colors\'></div>' +
+        '<button id=\'hg-prev\' title="Previous" aria-label="Next">\n        ' +
+            '<img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgICA8cGF0aCBkPSJNOC41OSAxNi4zNGw0LjU4LTQuNTktNC41OC00LjU5TDEwIDUuNzVsNiA2LTYgNnoiLz4NCiAgICA8cGF0aCBkPSJNMC0uMjVoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4NCjwvc3ZnPg==" alt="Previous" />\n      ' +
+        '</button>\n      ' +
+        '<button id=\'hg-next\' title="Next" aria-label="Previous">\n        ' +
+            '<img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgICA8cGF0aCBkPSJNOC41OSAxNi4zNGw0LjU4LTQuNTktNC41OC00LjU5TDEwIDUuNzVsNiA2LTYgNnoiLz4NCiAgICA8cGF0aCBkPSJNMC0uMjVoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4NCjwvc3ZnPg==" alt="Next" />\n      ' +
+        '</button>\n    ';
 
     document.body.appendChild(gallery);
+
+    this.elements.colors = document.getElementById('hg-colors');
 
     this.elements.b_prev = document.getElementById('hg-prev');
     this.elements.b_next = document.getElementById('hg-next');
@@ -140,6 +157,8 @@ var HesGallery = {
     else if (this.galleries[this.currentGal].options.showImageCount && this.galleries[this.currentGal].imgPaths.length != 1)
       document.getElementById('hg-howmany').innerHTML = this.currentImg + 1 + '/' + this.galleries[g].count;
     else document.getElementById('hg-howmany').innerHTML = '';
+
+    this.elements.colors.innerHTML = '';
 
 
     // Visibility of next/before buttons in gallery

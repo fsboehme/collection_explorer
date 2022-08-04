@@ -56,6 +56,16 @@ module.exports = {
             fontFamily: {
                 'tangerine': ['Tangerine', 'serif'],
                 'delafield': ['"Mrs Saint Delafield"', 'serif'],
+            },
+            dropShadow: {
+                'button': [
+                    '0 20px 13px rgb(0 0 0 / 0.13)',
+                    '0 8px 5px rgb(0 0 0 / 0.18)'
+                ],
+                'button-above': [
+                    '0 -5px 13px rgb(0 0 0 / 0.13)',
+                    '0 -3px 5px rgb(0 0 0 / 0.18)'
+                ]
             }
         }
     },

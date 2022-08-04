@@ -65,12 +65,19 @@ class Item(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     colors = models.ManyToManyField('Color', through='ItemColor', blank=True)
+    colors_string = models.TextField(blank=True)
+    colors_n = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['collection', 'token_id']
 
     def __str__(self):
         return f"{self.token_id} - {self.name}"
+
+    def save(self, *args, **kwargs):
+        self.colors_string = ','.join(list(self.colors.values_list('_hex', flat=True)))
+        self.colors_n = self.colors.count()
+        super().save(*args, **kwargs)
 
     def next(self):
         try:
@@ -206,6 +213,14 @@ class Color(models.Model):
     @property
     def rgb(self):
         return tuple(int(x) for x in self._rgb.split(','))
+
+    @property
+    def hex(self):
+        return self._hex
+
+    @property
+    def hex_naked(self):
+        return self._hex[1:]
 
 
 class ItemColor(models.Model):
