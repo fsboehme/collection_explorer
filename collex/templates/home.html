@@ -13,7 +13,7 @@
     <style>
         /* transition for items on translate */
         .filter-button {
-            transition: transform .1s;
+            transition: transform .4s;
         }
     </style>
 {% endblock %}
@@ -105,7 +105,8 @@
 
         // set maximum zoom level for images (px width)
         const maxPx = 400;
-        const minPx = 60;
+        const minPx = 30;
+        const minFontSize = ogFontSize * 0; // set to 0, but leaving here for future use
         $zoomerElement.max = pxToRem(maxPx);
         $zoomerElement.min = pxToRem(minPx);
         $zoomerElement.value = pxToRem(ogWidth);
@@ -119,7 +120,7 @@
                 }
                 #nfts {
                     margin: 0 -${newWidth / 15 / 2}px !important;
-                    font-size: ${Math.max(ogFontSize * .6, newWidth / ogWidth * ogFontSize)}px !important;
+                    font-size: ${Math.max(minFontSize, newWidth / ogWidth * ogFontSize)}px !important;
                 }`
             );
             $zoomerElement.value = pxToRem(newWidth)
@@ -178,15 +179,15 @@
 
         $nfts.imagesLoaded(function () {
             $nfts.isotope({
-                // options
                 itemSelector: '.gallery-item',
                 layoutMode: 'fitRows',
             });
-            applyFilters()
+            applyFilters();
+            document.iso = $nfts.data('isotope')
         });
 
         const $colorFilterButtons = $('#filters').find('button');
-        let $nColorsFilter = $('#n-color-filter');
+        const $nColorsFilter = $('#n-color-filter');
 
         $colorFilterButtons.click(function (event) {
             // inactive > included (active) > excluded (active)
@@ -260,6 +261,7 @@
          * Show image when hash is changed
          */
         function locationHashChanged() {
+            debugger
             var hash = window.location.hash;
             if (hash) {
                 $(hash).find('img').click();
