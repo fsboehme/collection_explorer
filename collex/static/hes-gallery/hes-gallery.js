@@ -177,6 +177,14 @@ var HesGallery = {
             div.style.backgroundColor = colors[i];
             this.elements.colors.appendChild(div);
         }
+        if (window.admin) {
+            var div = document.createElement('div');
+            div.classList.add('w-4', 'py-1', 'my-2', 'rounded-full', 'text-center');
+            div.style.backgroundColor = '#ffffff';
+            // add content
+            div.innerHTML = `<a href="/admin/collex/item/${this.galleries[g].itemPks[i]}" target="_blank">☝</a>️`;
+            this.elements.colors.appendChild(div)
+        }
 
         // Visibility of next/before buttons in gallery
         if (this.galleries[this.currentGal].imgPaths.length == 1) {
@@ -249,6 +257,7 @@ var HesGallery = {
         this.tokenIds = [];
         this.altTexts = [];
         this.itemColors = [];
+        this.itemPks = [];
 
         this.options = {};
 
@@ -270,6 +279,7 @@ var HesGallery = {
                 _this3.tokenIds.push(image.dataset.token_id || '');
                 _this3.altTexts.push(image.alt || '');
                 _this3.itemColors.push(image.dataset.colors || '');
+                _this3.itemPks.push(image.dataset.pk || '');
 
                 image.onclick = function () {
                     _this3.root.show(_this3.index, i - disabledCount);

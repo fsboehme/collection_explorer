@@ -47,7 +47,9 @@
             </div>
         {% endif %}
 
-        <div class="text-sm font-medium"><span id="item-count"></span> items</div>
+        {% if collection.color_filters or user.is_admin %}
+            <div class="text-sm font-medium"><span id="item-count"></span> items</div>
+        {% endif %}
         <div id="nfts" class="clear-right flex flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
 
             {% for item in collection.items.all %}
@@ -72,6 +74,7 @@
                              data-token_id="{{ item.token_id }}"
                              data-colors="{{ item.colors_string }}"
                              data-n-colors="{{ item.colors_n }}"
+                             data-pk="{{ item.pk }}"
                              alt="{{ item.name }}"/>
                     </a>
                 </section>
@@ -214,6 +217,7 @@
         })
 
         function applyFilters() {
+            {% if not collection.color_filters and not user.is_staff %}return false{% endif %}
             var includeColors = [],
                 excludeColors = [];
             $colorFilterButtons.each(function (i, elem) {
@@ -271,6 +275,7 @@
         }
 
         window.onhashchange = locationHashChanged;
+        {% if user.is_staff %}window.admin = true{% endif %}
 
     </script>
 {% endblock %}
