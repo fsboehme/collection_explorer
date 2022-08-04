@@ -176,9 +176,8 @@ class Item(models.Model):
     def add_color(self, hex, tolerance=7):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
         item_color, created = ItemColor.objects.get_or_create(item=self, color=color, defaults={'manually_added': True})
-        if created:
-            # find color in image and update amount
-            self.update_color_palette(color=color, tolerance=tolerance)
+        # find color in image and update amount
+        self.update_color_palette(color=color, tolerance=tolerance)
 
     def remove_color(self, hex):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
