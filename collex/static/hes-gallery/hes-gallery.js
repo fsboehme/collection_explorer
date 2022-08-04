@@ -99,8 +99,8 @@ var HesGallery = {
             '<div id=\'hg-next-onpic\'></div>\n        ' +
             '<div id=\'hg-subtext\'></div>\n        ' +
             '<div id=\'hg-howmany\'></div>\n      ' +
+            '<div id=\'hg-colors\'></div>' +
         '</div>\n      ' +
-        '<div id=\'hg-colors\'></div>' +
         '<button id=\'hg-prev\' title="Previous" aria-label="Next">\n        ' +
             '<img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgICA8cGF0aCBkPSJNOC41OSAxNi4zNGw0LjU4LTQuNTktNC41OC00LjU5TDEwIDUuNzVsNiA2LTYgNnoiLz4NCiAgICA8cGF0aCBkPSJNMC0uMjVoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz4NCjwvc3ZnPg==" alt="Previous" />\n      ' +
         '</button>\n      ' +
@@ -159,7 +159,16 @@ var HesGallery = {
     else document.getElementById('hg-howmany').innerHTML = '';
 
     this.elements.colors.innerHTML = '';
-
+    // get data colors from parent element
+    var colors = this.galleries[g].itemColors[i].split(',');
+    // make div for each color
+    for (var i = 0; i < colors.length; i++) {
+        var div = document.createElement('div');
+        // add classes: py-4 px-4 my-2 rounded-full
+        div.classList.add('py-4', 'px-4', 'my-2', 'rounded-full');
+        div.style.backgroundColor = colors[i];
+        this.elements.colors.appendChild(div);
+    }
 
     // Visibility of next/before buttons in gallery
     if (this.galleries[this.currentGal].imgPaths.length == 1) {
@@ -203,7 +212,13 @@ var HesGallery = {
     removeHash();
   },
   next: function next() {
-    if (this.galleries[this.currentGal].options.wrapAround && this.currentImg == this.galleries[this.currentGal].count - 1) this.show(this.currentGal, 0);else if (this.currentImg + 1 < this.galleries[this.currentGal].count) this.show(this.currentGal, this.currentImg + 1);
+    if (this.galleries[this.currentGal].options.wrapAround && this.currentImg == this.galleries[this.currentGal].count - 1) {
+      this.show(this.currentGal, 0);
+      history.pushState(true, '', `${0}`);
+    } else if (this.currentImg + 1 < this.galleries[this.currentGal].count) {
+      this.show(this.currentGal, this.currentImg + 1)
+      history.pushState(true, '', `${this.currentImg + 1}`);
+    }
   },
   prev: function prev() {
     if (this.galleries[this.currentGal].options.wrapAround && this.currentImg == 0) this.show(this.currentGal, this.galleries[this.currentGal].count - 1);else if (this.currentImg + 1 > 1) this.show(this.currentGal, this.currentImg - 1);
@@ -221,6 +236,7 @@ var HesGallery = {
     this.subTexts = [];
     this.tokenIds = [];
     this.altTexts = [];
+    this.itemColors = [];
 
     this.options = {};
 
@@ -241,6 +257,7 @@ var HesGallery = {
         _this3.subTexts.push(image.dataset.subtext || '');
         _this3.tokenIds.push(image.dataset.token_id || '');
         _this3.altTexts.push(image.alt || '');
+        _this3.itemColors.push(image.dataset.colors || '');
 
         image.onclick = function () {
           _this3.root.show(_this3.index, i - disabledCount);

@@ -29,7 +29,7 @@
             <label class=" font-medium text-sm">Filter Colors (click again or ctrl + click to exclude)</label>
             <div class="my-1">
                 {% for color in collection.colors.all %}
-                    <button class="filter-button py-4 px-4 my-2 rounded-full transition-transform"
+                    <button class="filter-button py-4 px-4 my-2 rounded-full"
                             data-filter="{{ color.hex }}"
                             style="background:{{ color.hex }};"
                     >
@@ -52,7 +52,7 @@
             {% for item in collection.items.all %}
                 <section id="{{ item.token_id }}"
                          class="w-60 gallery-item"
-                         data-colors="[{{ item.colors_string }}]"
+                         data-colors="{{ item.colors_string }}]"
                          data-n-colors="{{ item.colors_n }}"
                 >
                     <h4
@@ -67,6 +67,8 @@
                              data-fullsize="{{ item.image|thumbnail_url:'large' }}"
                              data-subtext="{{ item.name }}"
                              data-token_id="{{ item.token_id }}"
+                             data-colors="{{ item.colors_string }}"
+                             data-n-colors="{{ item.colors_n }}"
                              alt="{{ item.name }}"/>
                     </a>
                 </section>

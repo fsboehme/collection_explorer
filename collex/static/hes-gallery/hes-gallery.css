@@ -108,6 +108,13 @@
   bottom: -20px;
 }
 
+#hg-colors {
+  position: absolute;
+  display: block;
+  right: -3rem;
+  top: 0;
+}
+
 #hg-pic {
   width: auto;
   height: auto;
