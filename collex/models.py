@@ -174,7 +174,7 @@ class Item(models.Model):
         return palette_colors
 
     def add_color(self, hex, tolerance=7):
-        color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        color = Color.objects.get_or_create(_hex=f'#{hex}'.upper())[0]
         item_color, created = ItemColor.objects.get_or_create(item=self, color=color, defaults={'manually_added': True})
         # find color in image and update amount
         self.update_color_palette(color=color, tolerance=tolerance)
@@ -229,7 +229,7 @@ class Color(models.Model):
 class ItemColor(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    amount = models.IntegerField(blank=True, null=True)
+    amount = models.IntegerField(default=0)
     manually_removed = models.BooleanField(default=False)
     manually_added = models.BooleanField(default=False)
 
