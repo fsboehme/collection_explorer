@@ -56,11 +56,13 @@
                          data-colors="{{ item.colors_string }}]"
                          data-n-colors="{{ item.colors_n }}"
                 >
+                    {% if user.is_staff %}<a class="no-underline" href="/admin/collex/item/{{ item.pk }}/" target="_blank">{% endif %}
                     <h4
                             class="font-bold bg-moam-lavender text-white text-center text-ellipsis rounded-t-md overflow-hidden text-ellipsis w-full"
                     >
                         {{ item.name }}
                     </h4>
+                    {% if user.is_staff %}</a>{% endif %}
 
                     <a href="#{{ item.token_id }}" class="gallery-link">
                         <img class="gallery-img rounded-b-md w-full"
