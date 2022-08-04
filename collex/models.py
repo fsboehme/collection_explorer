@@ -132,13 +132,13 @@ class Item(models.Model):
             return self.safe_request(url)
         return response, content
 
-    def update_color_palette(self, color=None, tolerance=None, limit=None):
+    def update_color_palette(self, color=None, tolerance=4, limit=20):
         """
         Update the color palette for this item.
         :param color: optionally pass a Color instance to add just that color to the palette
         """
         img = self.thumbnail_path('xs')
-        ca = ColorAnalyzer(img, tolerance=tolerance or 4, limit=limit or 20)
+        ca = ColorAnalyzer(img, tolerance=tolerance, limit=limit)
         palette_colors = []
         collection_colors = self.collection.colors.all()
         colors = [color] if color else collection_colors
@@ -173,12 +173,12 @@ class Item(models.Model):
                 ItemColor.objects.get_or_create(item=self, color=color)
         return palette_colors
 
-    def add_color(self, hex):
+    def add_color(self, hex, tolerance=7):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
         item_color, created = ItemColor.objects.get_or_create(item=self, color=color, defaults={'manually_added': True})
         if created:
             # find color in image and update amount
-            self.update_color_palette(color=color, tolerance=10)
+            self.update_color_palette(color=color, tolerance=tolerance)
 
     def remove_color(self, hex):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
