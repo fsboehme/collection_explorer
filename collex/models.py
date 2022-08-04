@@ -5,7 +5,6 @@ from tempfile import NamedTemporaryFile
 from urllib import request
 from urllib.error import URLError
 
-import extcolors
 from PIL import ImageColor
 from django.conf import settings
 from django.core.files import File
@@ -27,6 +26,7 @@ class Collection(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     colors = models.ManyToManyField('Color', blank=True)
+    color_filters = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']

@@ -24,27 +24,28 @@
             <h1 class="text-6xl font-delafield font-bold mb-2 ">{{ collection.name }}</h1>
         </div>
 
-        <div id="filters" class="py-4 mb-8">
-            {# buttons for each collection color #}
-            <label class=" font-medium text-sm">Filter Colors (click again or ctrl + click to exclude)</label>
-            <div class="my-1">
-                {% for color in collection.colors.all %}
-                    <button class="filter-button py-4 px-4 my-2 rounded-full"
-                            data-filter="{{ color.hex }}"
-                            style="background:{{ color.hex }};"
-                    >
-                    </button>
-                {% endfor %}
-            </div>
+        {% if collection.color_filters or user.is_staff %}
+            <div id="filters" class="py-4 mb-8">
+                {# buttons for each collection color #}
+                <label class=" font-medium text-sm">Filter Colors (click again or ctrl + click to exclude)</label>
+                <div class="my-1">
+                    {% for color in collection.colors.all %}
+                        <button class="filter-button py-4 px-4 my-2 rounded-full"
+                                data-filter="{{ color.hex }}"
+                                style="background:{{ color.hex }};"
+                        >
+                        </button>
+                    {% endfor %}
+                </div>
 
-            <div class="mt-2 font-medium text-sm">
-                <label for="n-color-filter" class="">Color Count</label>
-                <span id="n-color-filter-value" class="mx-2 "></span>
-                <br>
-                <input id="n-color-filter" class="w-full md:w-2/5 mt-2" type="range" min="0" max="20" step="1" value="0">
+                <div class="mt-2 font-medium text-sm">
+                    <label for="n-color-filter" class="">Color Count</label>
+                    <span id="n-color-filter-value" class="mx-2 "></span>
+                    <br>
+                    <input id="n-color-filter" class="w-full md:w-2/5 mt-2" type="range" min="0" max="20" step="1" value="0">
+                </div>
             </div>
-
-        </div>
+        {% endif %}
 
         <div class="text-sm font-medium"><span id="item-count"></span> items</div>
         <div id="nfts" class="clear-right flex flex-wrap hes-gallery" data-contract_address="{{ collection.address }}">
