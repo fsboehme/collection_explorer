@@ -182,6 +182,9 @@ class Item(models.Model):
 
     def remove_color(self, hex):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
+        # delete if manually added
+        self.itemcolor_set.filter(color=color, manually_added=True).delete()
+        # update if it was regularly found
         self.itemcolor_set.filter(color=color).update(manually_removed=True)
 
     def unremove_color(self, hex):
