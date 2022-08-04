@@ -75,7 +75,8 @@ class Item(models.Model):
         return f"{self.token_id} - {self.name}"
 
     def save(self, *args, **kwargs):
-        self.colors_string = ','.join(list(self.colors.values_list('_hex', flat=True)))
+        self.colors_string = ','.join(
+            list(self.itemcolor_set.filter(manually_removed=False).values_list('_hex', flat=True)))
         self.colors_n = self.colors.count()
         super().save(*args, **kwargs)
 
