@@ -129,10 +129,8 @@
                 }`
             );
             $zoomerElement.value = pxToRem(newWidth)
-            setTimeout(() => $nfts.isotope('layout'), 0);
+            $nfts.isotope('layout');
         }
-
-        resizeGrid(ogWidth);
 
         function zoomerResize() {
             const newWidth = remToPx($zoomerElement.value)
@@ -187,6 +185,7 @@
                 itemSelector: '.gallery-item',
                 layoutMode: 'fitRows',
             });
+            resizeGrid(ogWidth);
             applyFilters();
             document.iso = $nfts.data('isotope')
         });
