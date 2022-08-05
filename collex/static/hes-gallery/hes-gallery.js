@@ -170,11 +170,11 @@ var HesGallery = {
         // get data colors from parent element
         var colors = this.galleries[g].itemColors[i].split(',');
         // make div for each color
-        for (var i = 0; i < colors.length; i++) {
+        for (var c = 0; c < colors.length; c++) {
             var div = document.createElement('div');
             // add classes: py-4 px-4 my-2 rounded-full
             div.classList.add('py-4', 'px-4', 'my-2', 'rounded-full');
-            div.style.backgroundColor = colors[i];
+            div.style.backgroundColor = colors[c];
             this.elements.colors.appendChild(div);
         }
         if (window.admin) {
