@@ -191,10 +191,12 @@ class Item(models.Model):
         self.itemcolor_set.filter(color=color, manually_added=True).delete()
         # update if it was regularly found
         self.itemcolor_set.filter(color=color).update(manually_removed=True)
+        self.save()
 
     def unremove_color(self, hex):
         color = Color.objects.get_or_create(_hex=f'#{hex}')[0]
         self.itemcolor_set.filter(color=color).update(manually_removed=False)
+        self.save()
 
 
 class Color(models.Model):
