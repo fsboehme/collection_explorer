@@ -9,6 +9,7 @@ from PIL import ImageColor
 from django.conf import settings
 from django.core.files import File
 from django.db import models
+from django.utils.functional import cached_property
 from easy_thumbnails.files import generate_all_aliases
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 from slugify import slugify
@@ -76,9 +77,13 @@ class Item(models.Model):
 
     def save(self, *args, **kwargs):
         self.colors_string = ','.join(
-            list(self.itemcolor_set.filter(manually_removed=False).values_list('color___hex', flat=True)))
-        self.colors_n = self.colors.count()
+            list(self.filtered_colors.values_list('color___hex', flat=True)))
+        self.colors_n = self.filtered_colors.count()
         super().save(*args, **kwargs)
+
+    @cached_property
+    def filtered_colors(self):
+        return self.itemcolor_set.filter(manually_removed=False)
 
     def next(self):
         try:
